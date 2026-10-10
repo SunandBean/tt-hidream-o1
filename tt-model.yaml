@@ -1,0 +1,62 @@
+schema: "5.1"
+repo: sunandbean/hidream-o1-p100a
+name: hidream-o1-p100a
+weights:
+  repo: HiDream-ai/HiDream-O1-Image
+  revision: 0b0901d99f200389e138c61946af1185f5f49a13
+kind: tt-dit-server
+arch: blackhole
+
+image:
+  registry: hf
+
+source:
+  tt_metal: {repo: https://github.com/tenstorrent/tt-metal, ref: v0.80.0-dev20260921}
+  code:
+    # Every port in this family reaches tt-metal for `models.tt_dit.utils.matmul.get_matmul_config`.
+    # The module guards that import and falls back to None, so an under-listed allowlist builds and
+    # loads cleanly and only fails on the first matmul -- list it rather than discover that at serve.
+    - models/common
+    - models/tt_dit
+  extra_code:
+    - root: {repo: https://github.com/SunandBean/tt-hidream-o1, ref: v0.1.2}
+      paths: [tt_hidream_o1]
+  ubuntu: "22.04"
+  python: "3.12"
+
+runtime:
+  app: tt_hidream_o1.server:app
+  mesh_shape_env: HIDREAM_MESH_SHAPE
+  packages:
+    - diffusers
+    - transformers
+    - safetensors
+    - huggingface_hub
+    - numpy
+    - scipy
+    - torchvision
+
+serve:
+  port: 8000
+  hardware: p100a
+  mesh_device: P100
+  env:
+    ARCH_NAME: blackhole
+    TT_METAL_OPERATION_TIMEOUT_SECONDS: "600.0"
+
+verify:
+  - "import tt_hidream_o1.server as s; assert s.app"
+
+card:
+  description: >
+    HiDream-O1-Image, an instruction-guided image editing and generation model, ported to one
+    Tenstorrent Blackhole p100a. Weights are MIT from HiDream-ai/HiDream-O1-Image and are never
+    redistributed here.
+  quickstart: |
+    ### Request shape
+
+    `POST /predict` takes `{"prompt": str, "width": int, "height": int, "seed": int}` and
+    returns `{"image": base64 PNG, "width", "height", "model", "weights_revision",
+    "license", "seed", "num_steps", "timing_ms"}`. The model is undistilled: the step count
+    is fixed at **50** and any other value is a 422. Generating below roughly 4 MP degrades
+    sharply -- see *Caveats* on the model card.

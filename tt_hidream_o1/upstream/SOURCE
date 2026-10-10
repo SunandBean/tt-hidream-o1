@@ -1,0 +1,3 @@
+Copied unmodified from HiDream-ai/HiDream-O1-Image @ 2c2d29ff729e48f33e41f49edfdbd81d5ac103b4 (MIT, see LICENSE):
+  models/utils.py -> utils.py, models/fm_solvers_unipc.py -> fm_solvers_unipc.py
+  models/qwen3_vl_transformers.py -> qwen3_vl_transformers.py (one change: an unconditional torch.cuda.memory_allocated() call is guarded behind DEBUG_MEM so it imports and runs on CPU-only torch). Only its Qwen3VLVisionModel is used (host vision tower): transformers 5.12's own Qwen3-VL vision tower gives different embeddings (max |diff| 0.98) than the 4.57 code the model ships with.
