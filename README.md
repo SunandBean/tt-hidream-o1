@@ -34,8 +34,8 @@ from tt_hidream_o1 import HiDreamTT, open_device, close_device
 dev = open_device()
 try:
     model = HiDreamTT(dev)
-    image, timing = model.generate("Three red apples and two green pears on a wooden table",
-                                   1024, 1024, seed=1234, snap=False)
+    image, _req, timing = model.generate("Three red apples and two green pears on a wooden table",
+                                         1024, 1024, seed=1234, snap=False)
     image.save("output.png")
 finally:
     close_device(dev)

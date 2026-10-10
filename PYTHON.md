@@ -26,7 +26,7 @@ Opens a 1×1 mesh with `DispatchCoreType.WORKER`. Pair with `close_device(dev)`.
 
 Loads the language model onto the card. The vision tower is built lazily on first use.
 
-### `HiDreamTT.generate(prompt, width, height, seed, refs=None, steps=50, guidance_scale=5.0, snap=True, keep_original_aspect=False) -> (PIL.Image, Timing)`
+### `HiDreamTT.generate(prompt, width, height, seed, refs=None, steps=50, guidance_scale=5.0, snap=True, keep_original_aspect=False) -> (PIL.Image, Request, Timing)`
 
 | Argument | Meaning |
 |---|---|
@@ -35,6 +35,11 @@ Loads the language model onto the card. The vision tower is built lazily on firs
 | `refs` | Reference images for the editing path. Only usable at the official ~4 MP sizes — see the caveat below. |
 | `steps`, `guidance_scale` | 50 and 5.0. This is the undistilled model: 50 steps at CFG 5 is 100 forwards. |
 | `keep_original_aspect` | Sizes the target from the reference, scaled to 2048² area. |
+
+The middle value is the resolved `Request`: the size, patch grid and step count the pipeline
+actually used after `snap` and the aspect rules were applied. Most callers want the first and
+third and bind it to `_req`; the parity checks in `experiments/` read it to rebuild the same
+request on the CPU.
 
 `Timing.values` holds `vision_s`, `prefix_s`, `lm_s`.
 

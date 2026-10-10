@@ -17,7 +17,8 @@ try:
     print(f"device DRAM {dram_stats(dev)['allocated_bytes'] / 2**30:.1f} GiB")
 
     # snap=False generates the size asked for; the official pipeline would round it to ~4 MP.
-    image, timing = model.generate(prompt, 1024, 1024, seed=1234, snap=False)
+    # generate() returns the image, the request it resolved, and the timings.
+    image, _req, timing = model.generate(prompt, 1024, 1024, seed=1234, snap=False)
     image.save("output.png")
     print({k: round(v, 2) for k, v in timing.values.items()})
 finally:
